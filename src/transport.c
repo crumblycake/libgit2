@@ -80,10 +80,13 @@ static int transport_find_fn(const char *url, git_transport_cb *callback, void *
 	if (!definition && git_path_exists(url) && git_path_isdir(url))
 		definition = &local_transport_definition;
 
-	/* It could be a SSH remote path. Check to see if there's a :
-	 * SSH is an unsupported transport mechanism in this version of libgit2 */
+	/* It could be a SSH remote path. Check to see if there's a : */
 	if (!definition && strrchr(url, ':'))
+#ifdef GIT_SSH
+		definition = &ssh_transport_definition;
+#else
 		definition = &dummy_transport_definition;
+#endif
 #else
 	/* For other systems, perform the SSH check first, to avoid going to the
 	 * filesystem if it is not necessary */
